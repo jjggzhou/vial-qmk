@@ -4,7 +4,9 @@ POINTING_DEVICE_ENABLE = yes
 # MOUSEKEY_ENABLE = yes
 POINTING_DEVICE_DRIVER = custom
 
-ENCODER_MAP_ENABLE = yes
+
 I2C_DRIVER_REQUIRED = yes
 SRC += azoteq_iqs5xx.c
 SRC += gr_trackpad65_driver.c
+
+HAPTIC_DRIVER = drv2605l
