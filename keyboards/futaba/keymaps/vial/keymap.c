@@ -3,6 +3,7 @@
 
 #include QMK_KEYBOARD_H
 #include <print.h>
+#include "drivers/haptic/drv2605l.h"
 #include "gr_trackpad65_driver.h"
 
 enum my_keycodes {
@@ -57,12 +58,6 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     )
 };
 
-const uint16_t PROGMEM encoder_map[][NUM_ENCODERS][2] = {
-    [0] =   { ENCODER_CCW_CW(KC_UP, KC_DOWN) },
-    [1] =   { ENCODER_CCW_CW(KC_LEFT, KC_RGHT) },
-    [2] =   { ENCODER_CCW_CW(KC_KB_VOLUME_UP, KC_KB_VOLUME_DOWN) },
-    [3] =   { ENCODER_CCW_CW(KC_UP, KC_DOWN) }
-};
 
 void keyboard_post_init_user(void) {
     // Customise these values to desired behaviour
@@ -70,6 +65,7 @@ void keyboard_post_init_user(void) {
     //debug_matrix = true;
     //debug_keyboard = true;
     //debug_mouse = true;
+    drv2605l_pulse(43);
 }
 
 typedef enum  {
@@ -148,4 +144,34 @@ report_mouse_t pointing_device_task_user(report_mouse_t mouse_report) {
     }
 
     return mouse_report;
+}
+
+layer_state_t layer_state_set_user(layer_state_t state) {
+
+    switch (get_highest_layer(state)) {
+
+    case 0:
+        rgb_matrix_sethsv_noeeprom((rgb_matrix_get_hue() + 21) % 255, rgb_matrix_get_sat(), rgb_matrix_get_val());
+        break;
+    case 1:
+        rgb_matrix_sethsv_noeeprom((rgb_matrix_get_hue() + 234) % 255, rgb_matrix_get_sat(), rgb_matrix_get_val());
+        break;
+    case 2:
+        rgb_matrix_sethsv_noeeprom((rgb_matrix_get_hue() + 116) % 255, rgb_matrix_get_sat(), rgb_matrix_get_val());
+        break;
+    default: //  他の全てのレイヤーあるいはデフォルトのレイヤー
+        rgb_matrix_reload_from_eeprom();
+        break;
+    }
+  return state;
+}
+
+bool rgb_matrix_indicators_kb(void) {
+    if (!rgb_matrix_indicators_user()) {
+        return false;
+    }
+    if (host_keyboard_led_state().caps_lock) {
+        rgb_matrix_set_color(0, 255, 0, 0);
+    }
+    return true;
 }

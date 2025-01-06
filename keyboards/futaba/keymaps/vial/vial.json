@@ -1,6 +1,6 @@
 {
 	"name": "Futaba",
-    "lighting": "none",
+    "lighting": "vialrgb",
     "customKeycodes": [
 	    {
             "shortName": "CHi",

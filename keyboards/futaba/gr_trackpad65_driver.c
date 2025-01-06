@@ -27,6 +27,7 @@
 #include "timer.h"
 #include "gr_trackpad65_driver.h"
 #include <math.h>
+#include "drivers/haptic/drv2605l.h"
 
 #define CONSTRAIN_HID(amt) ((amt) < INT8_MIN ? INT8_MIN : ((amt) > INT8_MAX ? INT8_MAX : (amt)))
 #define CONSTRAIN_HID_XY(amt) ((amt) < XY_REPORT_MIN ? XY_REPORT_MIN : ((amt) > XY_REPORT_MAX ? XY_REPORT_MAX : (amt)))
@@ -295,6 +296,7 @@ touch_state_t get_touch_state(trackpad_base_data_t *trackpad_data) {
     if (trackpad_data->touch_strength == 0) {
         return touch_state_none;
     } else if (trackpad_data->touch_strength >= FUTABA_TAP_STRENGTH_THRESHOLD) {
+        drv2605l_pulse(1);
         return touch_state_press;
     }
     return touch_state_touch;
