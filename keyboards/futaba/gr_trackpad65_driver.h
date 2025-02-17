@@ -25,11 +25,12 @@ typedef struct {
     int strength;
 } position_with_strength_t;
 
+// 滚动方向的枚举定义
 typedef enum {
-    scroll_direction_vertical,
-    scroll_direction_horizontal,
-    scroll_direction_both,
-    scroll_direction_tbd,
+    scroll_direction_vertical,    // 垂直滚动
+    scroll_direction_horizontal,  // 水平滚动
+    scroll_direction_both,       // 双向滚动
+    scroll_direction_tbd,        // 待定方向
 } scroll_direction_t;
 
 typedef struct {
@@ -41,30 +42,32 @@ typedef struct {
     int num_of_fingers;
 } trackpad_base_data_t;
 
-
+// 触摸状态的枚举定义
 typedef enum {
-    touch_state_none,
-    touch_state_touch,
-    touch_state_press,
+    touch_state_none,   // 无触摸
+    touch_state_touch,  // 轻触状态
+    touch_state_press,  // 按压状态
 } touch_state_t;
 
+// 触摸板状态的枚举定义
 typedef enum {
-    trackpad_state_idle,
-    trackpad_state_touch,
-    trackpad_state_move,
-    trackpad_state_gesture,
-    trackpad_state_gesture_fire,
-    trackpad_state_press,
-    trackpad_state_wait,
+    trackpad_state_idle,         // 空闲状态
+    trackpad_state_touch,        // 触摸状态
+    trackpad_state_move,         // 移动状态
+    trackpad_state_gesture,      // 手势状态
+    trackpad_state_gesture_fire, // 手势触发状态
+    trackpad_state_press,        // 按压状态
+    trackpad_state_wait,         // 等待状态
 } trackpad_state_t;
 
+// 触摸板手势事件的枚举定义
 typedef enum  {
-    trackpad_event_none = -1,
-    trackpad_event_tap = 0,
-    trackpad_event_swipe_up = 1,
-    trackpad_event_swipe_right = 2,
-    trackpad_event_swipe_down = 3,
-    trackpad_event_swipe_left = 4,
+    trackpad_event_none = -1,        // 无事件
+    trackpad_event_tap = 0,          // 点击事件
+    trackpad_event_swipe_up = 1,     // 向上滑动
+    trackpad_event_swipe_right = 2,  // 向右滑动
+    trackpad_event_swipe_down = 3,   // 向下滑动
+    trackpad_event_swipe_left = 4,   // 向左滑动
 } trackpad_gesture_event_t;
 
 typedef struct {
@@ -79,30 +82,30 @@ typedef struct {
 
 extern trackpad_event_t trackpad_event;
 
+// 触摸板配置结构体
 typedef struct {
-    bool    reverse_vertical_scroll;
-    bool    reverse_horizontal_scroll;
-    bool    disable_3fingers_tap;
+    bool    reverse_vertical_scroll;    // 是否反转垂直滚动
+    bool    reverse_horizontal_scroll;  // 是否反转水平滚动
+    bool    disable_3fingers_tap;       // 是否禁用三指点击
 } trackpad_config_t;
 
-#define REVERSE_VERTICAL_SCROLL_MASK   0b0000000000000001
-#define REVERSE_HORIZONTAL_SCROLL_MASK 0b0000000000000010
-#define REVERSE_DISABLE_3FINGERS_MASK  0b0000000000000100
+// 配置掩码定义
+#define REVERSE_VERTICAL_SCROLL_MASK   0b0000000000000001   // 反转垂直滚动掩码
+#define REVERSE_HORIZONTAL_SCROLL_MASK 0b0000000000000010   // 反转水平滚动掩码
+#define REVERSE_DISABLE_3FINGERS_MASK  0b0000000000000100   // 禁用三指点击掩码
 
 extern trackpad_config_t trackpad_config;
 
-const static int8_t FUTABA_SWIPE_THRESHOLD_PIXEL = 20;
-const static uint16_t FUTABA_MAX_GESTURE_ACTIVE_TIME = 1000;
-const static uint16_t FUTABA_RETAP_WAITING_TIME = 300;
- // 必ずpressにする閾値
-const static uint16_t FUTABA_TAP_STRENGTH_THRESHOLD = 800;
-// 弱いタッチでもクリックにする時間の最大値
-const static uint16_t FUTABA_MAX_TAP_TIME = 200;
+const static int8_t FUTABA_SWIPE_THRESHOLD_PIXEL = 20;          // 滑动手势触发的像素阈值
+const static uint16_t FUTABA_MAX_GESTURE_ACTIVE_TIME = 1000;    // 手势最大激活时间（毫秒）
+const static uint16_t FUTABA_RETAP_WAITING_TIME = 300;          // 双击等待时间（毫秒）
+const static uint16_t FUTABA_TAP_STRENGTH_THRESHOLD = 790;      // 强制点击的触摸强度阈值
+const static uint16_t FUTABA_MAX_TAP_TIME = 200;               // 轻触判定的最大时间（毫秒）
 
-const static int WAIT_TIME_FOR_CURSOR_MOVEMENT = 100;
-const static int WAIT_TIME_FOR_MULTI_TAP_CURSOR_MOVEMENT = 200;
+const static int WAIT_TIME_FOR_CURSOR_MOVEMENT = 100;           // 光标移动等待时间（毫秒）
+const static int WAIT_TIME_FOR_MULTI_TAP_CURSOR_MOVEMENT = 200; // 多次点击时光标移动等待时间（毫秒）
 
-#define SCROLL_SCALE_PERCENT 5
+#define SCROLL_SCALE_PERCENT 5  // 滚动速度缩放百分比
 
 void reset_trackpad_event(void);
 
