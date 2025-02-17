@@ -519,7 +519,7 @@ void get_finger_delta(azoteq_iqs5xx_base_data_t base_data, position_t *delta) {
 mouse_xy_report_t correct_cursor(int delta, int prev, bool print) {
 
     int avg = (delta + prev);
-    int ratio = (fmin(abs(avg), 255)) * 15 / 255 + 5;
+    int ratio = (fmin(abs(avg), 255)) * 10 / 255 + 5;
     int mov = avg * ratio / 20;
 
     return (mouse_xy_report_t) CONSTRAIN_HID_XY((int)mov);
