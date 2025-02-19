@@ -110,3 +110,6 @@ const static int WAIT_TIME_FOR_MULTI_TAP_CURSOR_MOVEMENT = 200; // 多次点击�
 void reset_trackpad_event(void);
 
 void update_trackpad_config(trackpad_config_t config);
+//
+Test
+comment
