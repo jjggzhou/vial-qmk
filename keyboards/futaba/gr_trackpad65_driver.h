@@ -97,7 +97,7 @@ extern trackpad_config_t trackpad_config;
 
 const static int8_t FUTABA_SWIPE_THRESHOLD_PIXEL = 20;          // 滑动手势触发的像素阈值
 const static uint16_t FUTABA_MAX_GESTURE_ACTIVE_TIME = 1000;    // 手势最大激活时间（毫秒）
-const static uint16_t FUTABA_RETAP_WAITING_TIME = 300;          // 双击等待时间（毫秒）
+const static uint16_t FUTABA_RETAP_WAITING_TIME = 200;          // 双击等待时间（毫秒）
 const static uint16_t FUTABA_TAP_STRENGTH_THRESHOLD = 790;      // 强制点击的触摸强度阈值
 const static uint16_t FUTABA_MAX_TAP_TIME = 200;               // 轻触判定的最大时间（毫秒）
 
