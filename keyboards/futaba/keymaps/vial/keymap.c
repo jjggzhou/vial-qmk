@@ -32,7 +32,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         KC_TAB , KC_A,    KC_S,    KC_D,            KC_F,           KC_G,                            KC_H,    KC_J,           KC_K,             KC_L,    KC_SCLN, KC_QUOT,
         KC_LCTL, KC_Z,    KC_X,    KC_C,            KC_V,           KC_B,                            KC_N,    KC_M,           KC_COMM,          KC_DOT,  KC_SLSH, KC_BSLS,
                  KC_LGUI, KC_LALT, LSFT_T(KC_LNG2), LT(2, KC_SPC),  MO(1),         LOW_SPEED,      MO(1),   LT(2, KC_ENT),  RSFT_T(KC_LNG1),  KC_LBRC, KC_RBRC
-               , KC_BTN3, G(KC_TAB), KC_BTN5, G(KC_D), KC_BTN4, KC_BTN3, G(KC_TAB), G(C(KC_RGHT)), G(KC_D), G(C(KC_LEFT))
+               , G(KC_TAB), KC_BTN5, G(KC_D), KC_BTN4, G(KC_TAB), G(C(KC_RGHT)), G(KC_D), G(C(KC_LEFT))
     ),
 
     [1] = LAYOUT(
@@ -40,7 +40,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         _______, _______, _______, _______, _______, _______,                            KC_LEFT, KC_DOWN, KC_UP  , KC_RGHT, _______, _______,
         _______, _______, _______, _______, _______, _______,                            KC_LCBR, KC_RCBR, KC_LBRC, KC_RBRC, _______, _______,
                  _______, _______, _______, _______, _______,          _______,          _______, KC_BSPC, _______, _______, _______
-               , _______, _______, _______, _______, _______, _______, _______, _______, _______, _______
+               , _______, _______, _______, _______, _______, _______, _______, _______
     ),
     [2] = LAYOUT(
         KC_TILD, KC_EXLM, KC_AT  , KC_HASH, KC_DLR , KC_PERC, _______, _______, _______, KC_CIRC, KC_AMPR, KC_ASTR, KC_LPRN, KC_RPRN, KC_PLUS,
@@ -54,7 +54,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         _______, _______, _______, DIS_3_TAP, _______, _______,                                _______, _______, _______, _______, _______, _______ ,
         _______, _______, _______, _______  , _______, _______,                                _______, _______, _______, _______, _______, _______ ,
                  _______, _______, _______  , _______, _______,            DF(0)  ,            _______, _______, _______, _______, _______
-               , _______, _______, _______  , _______, _______, _______  , _______, _______  , _______, _______
+                , _______, _______, _______, _______, _______, _______, _______, _______
     )
 };
 
