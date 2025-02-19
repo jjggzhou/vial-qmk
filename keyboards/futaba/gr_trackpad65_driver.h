@@ -63,11 +63,10 @@ typedef enum {
 // 触摸板手势事件的枚举定义
 typedef enum  {
     trackpad_event_none = -1,        // 无事件
-    trackpad_event_tap = 0,          // 点击事件
-    trackpad_event_swipe_up = 1,     // 向上滑动
-    trackpad_event_swipe_right = 2,  // 向右滑动
-    trackpad_event_swipe_down = 3,   // 向下滑动
-    trackpad_event_swipe_left = 4,   // 向左滑动
+    trackpad_event_swipe_up = 0,
+    trackpad_event_swipe_right = 1,
+    trackpad_event_swipe_down = 2,
+    trackpad_event_swipe_left = 3,
 } trackpad_gesture_event_t;
 
 typedef struct {
@@ -110,6 +109,3 @@ const static int WAIT_TIME_FOR_MULTI_TAP_CURSOR_MOVEMENT = 200; // 多次点击�
 void reset_trackpad_event(void);
 
 void update_trackpad_config(trackpad_config_t config);
-//
-Test
-comment
