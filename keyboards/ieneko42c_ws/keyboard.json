@@ -139,7 +139,7 @@
 	},
 	"matrix_pins": {
         "cols": ["GP4", "GP1", "GP0", "GP7", "GP6", "GP5"],
-        "rows": ["GP10", "GP8", "GP9", "GP11", "GP26", "GP27", "GP28", "GP15", "GP29", null, null]
+        "rows": ["GP10", "GP8", "GP9", "GP11", "GP26", "GP27", "GP28", "GP15", "GP29", null, null, null]
 	},
 	"processor": "RP2040",
 	"url": "",
@@ -213,8 +213,7 @@
                 {"matrix": [11, 1], "x": 1, "y": 6},
                 {"matrix": [11, 2], "x": 2, "y": 6},
                 {"matrix": [11, 3], "x": 3, "y": 6},
-                {"matrix": [11, 4], "x": 4, "y": 6},
-                {"matrix": [11, 5], "x": 5, "y": 6}
+                {"matrix": [11, 4], "x": 4, "y": 6}
 			]
 		}
 	},
