@@ -166,6 +166,10 @@ void keyboard_post_init_user(void) {
     drv2605l_pulse(53);
   }
   set_trackpad_config(trackpad_config);
+  debug_enable=true;
+  debug_matrix=true;
+  //debug_keyboard=true;
+  debug_mouse=true;
 }
 
 void matrix_scan_user(void) {

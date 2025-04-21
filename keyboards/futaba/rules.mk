@@ -10,3 +10,6 @@ SRC += azoteq_iqs5xx.c
 SRC += gr_trackpad65_driver.c
 
 HAPTIC_DRIVER = drv2605l
+
+
+CONSOLE_ENABLE = yes

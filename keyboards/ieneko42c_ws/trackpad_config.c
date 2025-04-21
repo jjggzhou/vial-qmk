@@ -5,10 +5,10 @@
 #include "trackpad_config.h"
 
 void init_trackpad_config(trackpad_config_t *trackpad_config) {
-  trackpad_config->init = true;  
-  trackpad_config->hf_waveform_number = 48;   
+  trackpad_config->init = true;
+  trackpad_config->hf_waveform_number = 48;
   trackpad_config->can_hf_for_layer = true;
-  trackpad_config->can_drag = true;  
+  trackpad_config->can_drag = true;
   trackpad_config->can_reverse_scrolling_direction = false;
   trackpad_config->can_trackpad_layer = true;
   trackpad_config->scroll_term = 100;
@@ -18,7 +18,7 @@ void init_trackpad_config(trackpad_config_t *trackpad_config) {
   trackpad_config->default_speed = 10;
   trackpad_config->scroll_step = 0;
   trackpad_config->can_short_scroll = true;
-  eeconfig_update_user_datablock(&trackpad_config); 
+  eeconfig_update_user_datablock(&trackpad_config);
 }
 
 void update_trackpad_config(trackpad_config_t trackpad_config) {
@@ -27,7 +27,7 @@ void update_trackpad_config(trackpad_config_t trackpad_config) {
   }
   hf_waveform_number = trackpad_config.hf_waveform_number;
   can_hf_for_layer = trackpad_config.can_hf_for_layer;
-  can_drag = trackpad_config.can_drag;  
+  can_drag = trackpad_config.can_drag;
   can_trackpad_layer = trackpad_config.can_trackpad_layer;
   can_reverse_scrolling_direction = trackpad_config.can_reverse_scrolling_direction;
   drag_term = trackpad_config.drag_term;
@@ -36,7 +36,7 @@ void update_trackpad_config(trackpad_config_t trackpad_config) {
   drag_strength = trackpad_config.drag_strength;
   default_speed = (double)trackpad_config.default_speed / 10.0;
   scroll_step = trackpad_config.scroll_step + 1;
-  can_short_scroll = trackpad_config.can_short_scroll;  
+  can_short_scroll = trackpad_config.can_short_scroll;
 }
 
 void set_trackpad_config(trackpad_config_t trackpad_config) {
@@ -49,9 +49,9 @@ void set_trackpad_config(trackpad_config_t trackpad_config) {
 }
 
 void send_trackpad_config(const trackpad_config_t *config) {
-  uint8_t data[32]; 
+  uint8_t data[32];
   memset(data, 0, sizeof(data));
-    
+
   const char* identifier = "gpktps";
   for (int i = 0; i < strlen(identifier); i++) {
       data[i] = (uint8_t)identifier[i];
@@ -79,7 +79,7 @@ void send_trackpad_config(const trackpad_config_t *config) {
              lower_default_speed;
 
   data[11] = (config->default_speed & 0b001111) << 4 |
-             config->scroll_step; 
+             config->scroll_step;
 
   data[12] = config->can_short_scroll << 7;
 
@@ -118,6 +118,6 @@ void receive_trackpad_config(uint8_t *data) {
   trackpad_config.default_speed = joinDefaultSpeed(data[5], data[6]);
   trackpad_config.scroll_step = data[6] & 0b00001111;
   trackpad_config.can_short_scroll = (data[7] & 0b10000000) >> 7;
-  eeconfig_update_user_datablock(&trackpad_config); 
+  eeconfig_update_user_datablock(&trackpad_config);
   update_trackpad_config(trackpad_config);
 }

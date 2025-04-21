@@ -21,7 +21,7 @@ void gesture_press_key(keypos_t k) {
     keyevent_t k_event = { .key = k, .type = KEY_EVENT };
     k_event.pressed = true;
     k_event.time = (timer_read() | 1);
-    action_exec(k_event);   
+    action_exec(k_event);
     k_event.pressed = false;
     k_event.time = (timer_read() | 1);
     action_exec(k_event);
@@ -45,6 +45,8 @@ void keyboard_post_init_kb() {
     gesture_time = timer_read32();
     drag_term = 0;
     keyboard_post_init_user();
+
+
 }
 
 void matrix_scan_kb() {
@@ -56,7 +58,7 @@ void matrix_scan_kb() {
     is_read_iqs5xx = read_iqs5xx(&iqs5xx_data);
     if (is_read_iqs5xx) {
         process_iqs5xx(&iqs5xx_data, &mouse_rep);
-        
+
         switch (iqs5xx_data.gesture) {
             case GESTURE_SWIPE_L:
                 if(iqs5xx_data.finger_cnt == 2){
@@ -74,7 +76,7 @@ void matrix_scan_kb() {
                 break;
             case GESTURE_SWIPE_D:
                 gesture_press_key(get_d_3);
-                break;                
+                break;
             case GESTURE_SWIPE_U:
                 gesture_press_key(get_u_3);
                 break;

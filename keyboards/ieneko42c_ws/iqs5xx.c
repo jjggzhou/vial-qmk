@@ -64,6 +64,7 @@ bool scroll_start = false;
 bool scroll_end = false;
 
 void set_tap(iqs5xx_data_t* const data, report_mouse_t* const rep_mouse) {
+    uprintf("finger: %d, ges_evnet0: %d, touch: %d\n", data->finger_cnt, data->ges_evnet0, data->touch_strenght1);
     if(tapped && data->finger_cnt == 0){
         rep_mouse->buttons = 0;
         clear_buttons = true;
