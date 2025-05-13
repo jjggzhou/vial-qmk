@@ -34,7 +34,7 @@ typedef struct {
 } iqs5xx_xy_t;
 
 typedef enum {
-    GESTURE_SWIPE_L = 0x10,    
+    GESTURE_SWIPE_L = 0x10,
     GESTURE_SWIPE_R,
     GESTURE_SWIPE_U,
     GESTURE_SWIPE_D,

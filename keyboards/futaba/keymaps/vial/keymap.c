@@ -2,9 +2,12 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 #include QMK_KEYBOARD_H
+#include "quantum.h"
+#include "rgb_matrix.h"
 #include <print.h>
-#include "drivers/haptic/drv2605l.h"
 #include "gr_trackpad65_driver.h"
+
+
 
 enum my_keycodes {
   HIGH_SPEED = QK_KB_0,
@@ -61,11 +64,6 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
 void keyboard_post_init_user(void) {
     // Customise these values to desired behaviour
-    debug_enable = true;
-    debug_matrix = true;
-    debug_keyboard = true;
-    debug_mouse = true;
-    drv2605l_pulse(43);
 }
 
 typedef enum  {
@@ -146,32 +144,30 @@ report_mouse_t pointing_device_task_user(report_mouse_t mouse_report) {
     return mouse_report;
 }
 
-layer_state_t layer_state_set_user(layer_state_t state) {
+bool rgb_matrix_indicators_advanced_user(uint8_t led_min, uint8_t led_max) {
+    uint8_t current_layer = get_highest_layer(layer_state);
+    HSV hsv = {0, 255, 255};
+    uint8_t hue = 0;
+    bool custom = true;
 
-    switch (get_highest_layer(state)) {
+    switch (current_layer) {
+        case 1: hue = 191; break;  // PURPLE
+        case 2: hue = 85; break;   // GREEN
+        case 3: hue = 43; break;   // YELLOW
+        case 4: hue = 222; break;  // ROSE
+        default:
+            custom = false;
+            break;
+    }
 
-    case 0:
-        rgb_matrix_sethsv_noeeprom((rgb_matrix_get_hue() + 21) % 255, rgb_matrix_get_sat(), rgb_matrix_get_val());
-        break;
-    case 1:
-        rgb_matrix_sethsv_noeeprom((rgb_matrix_get_hue() + 234) % 255, rgb_matrix_get_sat(), rgb_matrix_get_val());
-        break;
-    case 2:
-        rgb_matrix_sethsv_noeeprom((rgb_matrix_get_hue() + 116) % 255, rgb_matrix_get_sat(), rgb_matrix_get_val());
-        break;
-    default: //  他の全てのレイヤーあるいはデフォルトのレイヤー
-        rgb_matrix_reload_from_eeprom();
-        break;
+    if (custom) {
+        hsv.h = hue;
+        RGB rgb = hsv_to_rgb(hsv);
+        for (uint8_t i = led_min; i < led_max; i++) {
+            rgb_matrix_set_color(i, rgb.r, rgb.g, rgb.b);
+        }
+        return false;  // 阻止动画，使用自定义颜色
+    } else {
+        return true;   // 允许动画（比如 RGB_MATRIX_CYCLE_OUT_IN）正常运行
     }
-  return state;
-}
-
-bool rgb_matrix_indicators_kb(void) {
-    if (!rgb_matrix_indicators_user()) {
-        return false;
-    }
-    if (host_keyboard_led_state().caps_lock) {
-        rgb_matrix_set_color(0, 255, 0, 0);
-    }
-    return true;
 }

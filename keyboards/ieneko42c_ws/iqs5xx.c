@@ -64,8 +64,9 @@ bool scroll_start = false;
 bool scroll_end = false;
 
 void set_tap(iqs5xx_data_t* const data, report_mouse_t* const rep_mouse) {
-    uprintf("finger: %d, ges_evnet0: %d, touch: %d\n", data->finger_cnt, data->ges_evnet0, data->touch_strenght1);
+    uprintf("[set_tap] entry: gesture=%d, ges_evnet0=%d, ges_evnet1=%d, finger_cnt=%d, tapped=%d\n", data->gesture, data->ges_evnet0, data->ges_evnet1, data->finger_cnt, tapped);
     if(tapped && data->finger_cnt == 0){
+        uprintf("[set_tap] tapped release: clearing buttons\n");
         rep_mouse->buttons = 0;
         clear_buttons = true;
         tapped = false;
@@ -75,30 +76,39 @@ void set_tap(iqs5xx_data_t* const data, report_mouse_t* const rep_mouse) {
 
     if(data->ges_evnet1 == 0 && data->finger_cnt == 2) {
         tapped2_cnt = tapped2_cnt + 1;
+        uprintf("[set_tap] tapped2_cnt incremented: %d\n", tapped2_cnt);
     }
 
     if(data->ges_evnet1 == 0 && data->finger_cnt == 3) {
         tapped3_cnt = tapped3_cnt + 1;
+        uprintf("[set_tap] tapped3_cnt incremented: %d\n", tapped3_cnt);
     }
 
     if (data->ges_evnet0 == 1) {
         if(data->absolute_xy.bytes[0] == 0 && data->absolute_xy.bytes[1] < 128){
             data->gesture = TAP_FINGER_ONE_LEFT;
+            uprintf("[set_tap] TAP_FINGER_ONE_LEFT\n");
         } else if(data->absolute_xy.bytes[0] == 3 && data->absolute_xy.bytes[1] > 128){
             data->gesture = TAP_FINGER_ONE_RIGHT;
+            uprintf("[set_tap] TAP_FINGER_ONE_RIGHT\n");
         } else {
             data->gesture = TAP_FINGER_ONE_CENTER;
+            uprintf("[set_tap] TAP_FINGER_ONE_CENTER\n");
         }
         tapped = true;
+        uprintf("[set_tap] single tap detected, tapped set true\n");
     } else if(timer_elapsed32(tap_time) > TAP_TERM && tapped2_cnt > 2 && data->ges_evnet1 == 1) {
         data->gesture = TAP_FINGER_TWO;
         tapped = true;
+        uprintf("[set_tap] TAP_FINGER_TWO\n");
     } else if(timer_elapsed32(tap_time) > TAP_TERM && tapped3_cnt > 2 && data->ges_evnet1 == 1){
         data->gesture = TAP_FINGER_THREE;
         tapped = true;
+        uprintf("[set_tap] TAP_FINGER_THREE\n");
     } else if(can_drag && !use_drag && data->ges_evnet0 == 2) {
         if(!drag_strength_mode && drag_time == 0) {
             drag_time = timer_read32();
+            uprintf("[set_tap] drag_time started\n");
         } else if(
             (!drag_strength_mode && timer_elapsed32(drag_time) > drag_term) ||
             (drag_strength_mode && data->touch_strenght1 >= drag_strength)
@@ -106,24 +116,29 @@ void set_tap(iqs5xx_data_t* const data, report_mouse_t* const rep_mouse) {
             drv2605l_pulse(hf_waveform_number);
             use_drag = true;
             drag_time = 0;
+            uprintf("[set_tap] drag activated\n");
         }
     }
 
     if(tapped || data->gesture == TAP_FINGER_THREE){
         tap_time = timer_read32();
+        uprintf("[set_tap] tap_time reset\n");
     }
 
     if (use_drag){
         rep_mouse->buttons |=  1;
+        uprintf("[set_tap] drag button pressed\n");
     }
 
     if(data->finger_cnt == 0){
         drag_time = 0;
+        uprintf("[set_tap] drag_time cleared (finger_cnt==0)\n");
     }
 
     if(data->ges_evnet1 > 0){
         tapped2_cnt = 0;
         tapped3_cnt = 0;
+        uprintf("[set_tap] tapped2_cnt and tapped3_cnt reset\n");
     }
 }
 
@@ -244,4 +259,3 @@ void process_iqs5xx(iqs5xx_data_t* const data, report_mouse_t* const rep_mouse) 
     set_tap(data, rep_mouse);
     set_gesture(data, rep_mouse);
 }
-
