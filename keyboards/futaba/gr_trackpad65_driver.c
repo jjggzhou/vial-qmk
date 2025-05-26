@@ -17,46 +17,16 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
- // Include necessary QMK headers
-#include "quantum.h"
-#include "i2c_master.h"
-#include "wait.h"
-#include "debug.h"
-#include "print.h"
-#include "eeconfig.h"
-#include "pointing_device.h"
-#include "pointing_device_internal.h"
-#include "report.h"
-#include "timer.h"
-
-// Include local headers
-#include "gr_trackpad65_driver.h"
-#include "azoteq_iqs5xx.h"
-
-// Trackpad configuration structure
-typedef struct {
-    bool reverse_vertical_scroll;
-    bool reverse_horizontal_scroll;
-    bool disable_3fingers;
-} trackpad_config_t;
-
-// Trackpad configuration instance
-trackpad_config_t trackpad_config;
-
-// Debug output
-#ifdef POINTING_DEVICE_DEBUG
-#    define pd_printf(format, ...) dprintf(format, ##__VA_ARGS__)
-#else
-#    define pd_printf(format, ...) 
-#endif
-
-// Constants for EEPROM configuration
-#define REVERSE_VERTICAL_SCROLL_MASK (1 << 0)
-#define REVERSE_HORIZONTAL_SCROLL_MASK (1 << 1)
-#define REVERSE_DISABLE_3FINGERS_MASK (1 << 2)
-
-// Trackpad initialization status
-static uint8_t azoteq_iqs5xx_init_status = 0;
+ #include "quantum.h"
+ #include "i2c_master.h"
+ #include "azoteq_iqs5xx.h"
+ #include "pointing_device_internal.h"
+ #include "pointing_device.h"
+ #include "debug.h"
+ #include "wait.h"
+ #include "timer.h"
+ #include "gr_trackpad65_driver.h"
+ #include <math.h>
 
  #define CONSTRAIN_HID(amt) ((amt) < INT8_MIN ? INT8_MIN : ((amt) > INT8_MAX ? INT8_MAX : (amt)))
  #define CONSTRAIN_HID_XY(amt) ((amt) < XY_REPORT_MIN ? XY_REPORT_MIN : ((amt) > XY_REPORT_MAX ? XY_REPORT_MAX : (amt)))
@@ -92,69 +62,21 @@ static uint8_t azoteq_iqs5xx_init_status = 0;
  static i2c_status_t azoteq_iqs5xx_init_status = 1;
 
  void pointing_device_driver_init(void) {
-    pd_printf("[Trackpad] Initializing touchpad driver...\n");
-    
-    // Initialize I2C
-    pd_printf("[Trackpad] Initializing I2C...\n");
-    i2c_init();
-    
-    // Wake up touchpad
-    pd_printf("[Trackpad] Waking up touchpad...\n");
-    azoteq_iqs5xx_wake();
-    
-    // Reset touchpad
-    pd_printf("[Trackpad] Resetting touchpad...\n");
-    azoteq_iqs5xx_reset_suspend(true, false, true);
-    
-    // Wait for touchpad to initialize
-    pd_printf("[Trackpad] Waiting for touchpad to initialize...\n");
-    wait_ms(100);
-    
-    // Wake up touchpad again after reset
-    pd_printf("[Trackpad] Waking up touchpad after reset...\n");
-    azoteq_iqs5xx_wake();
-    
-    // Check touchpad product ID
-    uint16_t product_id = azoteq_iqs5xx_get_product();
-    pd_printf("[Trackpad] Touchpad product ID: 0x%04X\n", product_id);
-    
-    if (product_id != AZOTEQ_IQS5XX_UNKNOWN) {
-        pd_printf("[Trackpad] Setting up touchpad resolution...\n");
-        azoteq_iqs5xx_setup_resolution();
-        
-        // Configure touchpad settings
-        pd_printf("[Trackpad] Configuring report rate...\n");
-        azoteq_iqs5xx_init_status = azoteq_iqs5xx_set_report_rate(AZOTEQ_IQS5XX_REPORT_RATE, AZOTEQ_IQS5XX_ACTIVE, false);
-        pd_printf("[Trackpad] Report rate status: %d\n", azoteq_iqs5xx_init_status);
-        
-        pd_printf("[Trackpad] Configuring event mode...\n");
-        azoteq_iqs5xx_init_status |= azoteq_iqs5xx_set_event_mode(false, false);
-        pd_printf("[Trackpad] Event mode status: %d\n", azoteq_iqs5xx_init_status);
-        
-        pd_printf("[Trackpad] Configuring REATI...\n");
-        azoteq_iqs5xx_init_status |= azoteq_iqs5xx_set_reati(true, false);
-        pd_printf("[Trackpad] REATI status: %d\n", azoteq_iqs5xx_init_status);
-        
-        pd_printf("[Trackpad] Configuring XY settings...\n");
-        azoteq_iqs5xx_init_status |= azoteq_iqs5xx_set_xy_config(false, false, false, true, false);
-        pd_printf("[Trackpad] XY settings status: %d\n", azoteq_iqs5xx_init_status);
-        
-        pd_printf("[Trackpad] Configuring gesture settings...\n");
-        azoteq_iqs5xx_init_status |= azoteq_iqs5xx_set_gesture_config(true);
-        pd_printf("[Trackpad] Gesture settings status: %d\n", azoteq_iqs5xx_init_status);
-        
-        // Wait for first report
-        pd_printf("[Trackpad] Waiting for first report...\n");
-        wait_ms(AZOTEQ_IQS5XX_REPORT_RATE + 1);
-        
-        // Read trackpad configuration from EEPROM
-        pd_printf("[Trackpad] Reading trackpad configuration...\n");
-        read_trackpad_config();
-        pd_printf("[Trackpad] Trackpad initialization complete. Status: %d\n", azoteq_iqs5xx_init_status);
-    } else {
-        pd_printf("[Trackpad] Error: Unknown touchpad product ID\n");
-        azoteq_iqs5xx_init_status = 0xFF; // Set error status
-    } 
+     i2c_init();
+     azoteq_iqs5xx_wake();
+     azoteq_iqs5xx_reset_suspend(true, false, true);
+     wait_ms(100);
+     azoteq_iqs5xx_wake();
+     if (azoteq_iqs5xx_get_product() != AZOTEQ_IQS5XX_UNKNOWN) {
+         azoteq_iqs5xx_setup_resolution();
+         azoteq_iqs5xx_init_status = azoteq_iqs5xx_set_report_rate(AZOTEQ_IQS5XX_REPORT_RATE, AZOTEQ_IQS5XX_ACTIVE, false);
+         azoteq_iqs5xx_init_status |= azoteq_iqs5xx_set_event_mode(false, false);
+         azoteq_iqs5xx_init_status |= azoteq_iqs5xx_set_reati(true, false);
+         azoteq_iqs5xx_init_status |= azoteq_iqs5xx_set_xy_config(false, false, false, true, false);
+         azoteq_iqs5xx_init_status |= azoteq_iqs5xx_set_gesture_config(true);
+         wait_ms(AZOTEQ_IQS5XX_REPORT_RATE + 1);
+         read_trackpad_config();
+     }
  };
 
  void dispatch_swipe_gesture(int16_t swipe_distance_x, int16_t swipe_distance_y, int8_t num_of_fingers) {
@@ -222,65 +144,65 @@ static uint8_t azoteq_iqs5xx_init_status = 0;
      return temp_report;
  }
 
-report_mouse_t move_strategy(trackpad_base_data_t *trackpad_data) {
-    report_mouse_t temp_report = {0};
-    if (trackpad_data->num_of_fingers  >= 2) {
 
-        int scroll_dir_x = (trackpad_config.reverse_horizontal_scroll) ? -1 : 1;
-        int scroll_dir_y = (trackpad_config.reverse_vertical_scroll  ) ? -1 : 1;
+ report_mouse_t move_strategy(trackpad_base_data_t *trackpad_data) {
+     report_mouse_t temp_report = {0};
+     if (trackpad_data->num_of_fingers  >= 2) {
 
-        scroll_rest.x += trackpad_data->pos.x * SCROLL_SCALE_PERCENT;
-        scroll_rest.y += trackpad_data->pos.y * SCROLL_SCALE_PERCENT;
-        int scroll_x = scroll_rest.x / 100;
-        int scroll_y = scroll_rest.y / 100;
-        scroll_rest.x -= scroll_x * 100;
-        scroll_rest.y -= scroll_y * 100;
+         int scroll_dir_x = (trackpad_config.reverse_horizontal_scroll) ? -1 : 1;
+         int scroll_dir_y = (trackpad_config.reverse_vertical_scroll  ) ? -1 : 1;
 
-        // Restrict scroll direction.
-        if (scroll_direction == scroll_direction_tbd) {
-            if (scroll_x == 0 && scroll_y == 0) {
-                return temp_report;
-            }
-            if (abs(scroll_y) > abs(scroll_x) * 2) {
-                scroll_direction = scroll_direction_vertical;
-            } else if (abs(scroll_x) > abs(scroll_y) *2) {
-                scroll_direction = scroll_direction_horizontal;
-            } else {
-                scroll_direction = scroll_direction_both;
-            }
+         scroll_rest.x += trackpad_data->pos.x * SCROLL_SCALE_PERCENT;
+         scroll_rest.y += trackpad_data->pos.y * SCROLL_SCALE_PERCENT;
+         int scroll_x = scroll_rest.x / 100;
+         int scroll_y = scroll_rest.y / 100;
+         scroll_rest.x -= scroll_x * 100;
+         scroll_rest.y -= scroll_y * 100;
 
-            return temp_report;
-        }
+         // Restrict scroll direction.
+         if (scroll_direction == scroll_direction_tbd) {
+             if (scroll_x == 0 && scroll_y == 0) {
+                 return temp_report;
+             }
+             if (abs(scroll_y) > abs(scroll_x) * 2) {
+                 scroll_direction = scroll_direction_vertical;
+             } else if (abs(scroll_x) > abs(scroll_y) *2) {
+                 scroll_direction = scroll_direction_horizontal;
+             } else {
+                 scroll_direction = scroll_direction_both;
+             }
 
-        // Remove restrictions on scroll direction.
-        if (abs(trackpad_data->pos.y) > abs(trackpad_data->pos.x) * 2  && abs(trackpad_data->prev_pos.y) > abs(trackpad_data->prev_pos.x) * 2) {
-            if (scroll_direction == scroll_direction_horizontal) {
-                scroll_direction = scroll_direction_both;
-            }
+             return temp_report;
+         }
 
-        } else if (abs(trackpad_data->pos.x) > abs(trackpad_data->pos.y) * 2  && abs(trackpad_data->prev_pos.x) > abs(trackpad_data->prev_pos.y) * 2) {
-            if (scroll_direction == scroll_direction_vertical) {
-                scroll_direction = scroll_direction_both;
-            }
-        }
+         // Remove restrictions on scroll direction.
+         if (abs(trackpad_data->pos.y) > abs(trackpad_data->pos.x) * 2  && abs(trackpad_data->prev_pos.y) > abs(trackpad_data->prev_pos.x) * 2) {
+             if (scroll_direction == scroll_direction_horizontal) {
+                 scroll_direction = scroll_direction_both;
+             }
 
-        if (scroll_direction == scroll_direction_vertical || scroll_direction == scroll_direction_both) {
-            temp_report.v = CONSTRAIN_HID(scroll_y * scroll_dir_y);
-        }
-        if (scroll_direction == scroll_direction_horizontal || scroll_direction == scroll_direction_both) {
-            temp_report.h = CONSTRAIN_HID(scroll_x * scroll_dir_x);
-        }
+         } else if (abs(trackpad_data->pos.x) > abs(trackpad_data->pos.y) * 2  && abs(trackpad_data->prev_pos.x) > abs(trackpad_data->prev_pos.y) * 2) {
+             if (scroll_direction == scroll_direction_vertical) {
+                 scroll_direction = scroll_direction_both;
+             }
+         }
+
+         if (scroll_direction == scroll_direction_vertical || scroll_direction == scroll_direction_both) {
+             temp_report.v = CONSTRAIN_HID(scroll_y * scroll_dir_y);
+         }
+         if (scroll_direction == scroll_direction_horizontal || scroll_direction == scroll_direction_both) {
+             temp_report.h = CONSTRAIN_HID(scroll_x * scroll_dir_x);
+         }
 
 
-    } else {
-        scroll_direction = scroll_direction_tbd;
-        temp_report.x = trackpad_data->mouse_report_x;
-        temp_report.y = trackpad_data->mouse_report_y;
-    }
+     } else {
+         scroll_direction = scroll_direction_tbd;
+         temp_report.x = trackpad_data->mouse_report_x;
+         temp_report.y = trackpad_data->mouse_report_y;
+     }
 
-    return temp_report;
-}
-
+     return temp_report;
+ }
 
  report_mouse_t gesture_strategy(trackpad_base_data_t *trackpad_data) {
      report_mouse_t temp_report = {0};
@@ -593,11 +515,13 @@ report_mouse_t move_strategy(trackpad_base_data_t *trackpad_data) {
  }
 
  mouse_xy_report_t correct_cursor(int delta, int prev, bool print) {
-    int avg = (delta + prev);
-    int ratio = (fmin(abs(avg), 255)) * 9 / 255 + 4;  // 13 * 0.7 ≈ 9, 5 * 0.7 ≈ 4
-    int mov = avg * ratio / 25;
-    return (mouse_xy_report_t) CONSTRAIN_HID_XY((int)mov);
-}
+
+     int avg = (delta + prev);
+     int ratio = (fmin(abs(avg), 255)) * 15 / 255 + 5;
+     int mov = avg * ratio / 20;
+
+     return (mouse_xy_report_t) CONSTRAIN_HID_XY((int)mov);
+ }
 
  static position_t prev = {0};
 

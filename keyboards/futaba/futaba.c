@@ -27,7 +27,7 @@ void matrix_scan_kb(void) {
         int row = trackpad_event.num_of_fingers == 3 ?
                     THREE_FINGER_GESTURE_ROW : FOUR_FINGER_GESTURE_ROW;
         action_exec(MAKE_KEYEVENT(row, trackpad_event.type, true));
-        wait_ms(10);
+        wait_ms(20);
         action_exec(MAKE_KEYEVENT(row, trackpad_event.type, false));
         reset_trackpad_event();
     }
